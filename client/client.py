@@ -9,12 +9,18 @@ sel = selectors.DefaultSelector()
 
 import clientlib
 
-def create_request(action, value):
-    if action == "search":
+def create_request(action, value, delay=0):
+    if action == "press" or action=="release":
         return dict(
             type="text/json",
             encoding="utf-8",
             content=dict(action=action, value=value),
+        )
+    if action == "push":
+        return dict(
+            type="text/json",
+            encoding="utf-8",
+            content=dict(action=action, value=value, delay=delay),
         )
     else:
         return dict(
@@ -34,16 +40,20 @@ def start_connection(host, port, request):
     sel.register(sock, events, data=message)
 
 
-if len(sys.argv) != 5:
-    print(f"Usage: {sys.argv[0]} <host> <port> <action> <value>")
+if len(sys.argv) != 5 and len(sys.argv) != 6:
+    print(f"Usage: {sys.argv[0]} <host> <port> <action> <value> (<delay>)")
     sys.exit()
 
 host = sys.argv[1]
 port = int(sys.argv[2])
 action = sys.argv[3]
 value = sys.argv[4]
+delay = 0
 
-request = create_request(action, value)
+if len(sys.argv) == 6:
+    delay = sys.argv[5]
+
+request = create_request(action, value, delay)
 start_connection(host, port, request)
 
 

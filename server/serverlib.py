@@ -3,15 +3,12 @@ import selectors
 import json
 import io
 import struct
+import asyncio
 
-request_search = {
-    "morpheus": "Follow the white rabbit. \U0001f430",
-    "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
-    "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
-}
+
 
 class Message:
-    def __init__(self, selector, sock, addr):
+    def __init__(self, selector, sock, addr, emulator):
         self.selector = selector
         self.sock = sock
         self.addr = addr
@@ -21,6 +18,7 @@ class Message:
         self.jsonheader = None
         self.request = None
         self.response_created = False
+        self.emulator = emulator
 
     def _set_selector_events_mask(self, mode):
         """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
@@ -170,10 +168,19 @@ class Message:
 
     def _create_response_json_content(self):
         action = self.request.get("action")
-        if action == "search":
-            query = self.request.get("value")
-            answer = request_search.get(query) or f"No match for '{query}'."
-            content = {"result": answer}
+        if action == "press":
+            btn = self.request.get("value")
+            self.emulator.press_btn(btn)
+            content = {"success": True}
+        if action == "release":
+            btn = self.request.get("value")
+            self.emulator.release_btn(btn)
+            content = {"success": True}
+        if action == "push":
+            btn = self.request.get("value")
+            delay = self.request.get("delay")
+            self.emulator.push_btn(btn, delay)
+            content = {"success": True}
         else:
             content = {"result": f"Error: invalid action '{action}'."}
         content_encoding = "utf-8"
@@ -210,3 +217,4 @@ class Message:
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
+
