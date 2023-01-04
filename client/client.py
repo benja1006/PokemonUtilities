@@ -40,19 +40,22 @@ def start_connection(host, port, request):
     sel.register(sock, events, data=message)
 
 
-if len(sys.argv) != 5 and len(sys.argv) != 6:
-    print(f"Usage: {sys.argv[0]} <host> <port> <action> <value> (<delay>)")
-    sys.exit()
+# if len(sys.argv) != 5 and len(sys.argv) != 6:
+#     print(f"Usage: {sys.argv[0]} <host> <port> <action> <value> (<delay>)")
+#     sys.exit()
 
-host = sys.argv[1]
-port = int(sys.argv[2])
-action = sys.argv[3]
-value = sys.argv[4]
-delay = 0
+# host = sys.argv[1]
+# port = int(sys.argv[2])
+# action = sys.argv[3]
+# value = sys.argv[4]
+# delay = 0
 
-if len(sys.argv) == 6:
-    delay = sys.argv[5]
+# if len(sys.argv) == 6:
+#     delay = sys.argv[5]
 
+"""
+Read a file. For each line in file, action, value and delay will be separated by a space, then just perform each one sequentially.
+"""
 request = create_request(action, value, delay)
 start_connection(host, port, request)
 
