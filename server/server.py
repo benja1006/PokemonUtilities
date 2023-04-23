@@ -10,8 +10,7 @@ from joycontrol.controller import Controller
 from joycontrol import logging_default as log, utils
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
-#from joycontrol.command_line_interface import ControllerCLI
-from joycontrol.controller_state import ControllerState, button_push, button_press, button_release
+from joycontrol.command_line_interface import ControllerCLI
 
 sel = selectors.DefaultSelector()
 
@@ -59,41 +58,44 @@ class Emulator:
 
             self.controller_state = protocol.get_controller_state()
             self.controller_state.connect()
-            #  cli = ControllerCLI(controller_state)
+            self.cli = ControllerCLI(self.controller_state)
             # _register_commands_with_controller_state(controller_state, cli)
-    
-    def press_btn(self, btn: str):
-        button_press(self.controller_state, btn)
 
-    def release_btn(self, btn):
-        button_release(self.controller_state, btn)
+            try:
+                await self.cli.run()
+            finally:
+                await transport.close()
     
-    def push_btn(self, btn: str, delay: int):
-        button_push(self.controller_state, btn, sec=delay)
 
     
 
 emulator = Emulator()
-emulator.setup()
 
-try:
-    while True:
-        events = sel.select(timeout=None)
-        for key, mask in events:
-            if key.data is None:
-                accept_wrapper(key.fileobj)
-            else:
-                message = key.data
-                try:
-                    message.process_events(mask, emulator)
-                except Exception:
-                    print(
-                        f" Main: Error: Exception for {message.addr}:\n"
-                        f"{traceback.format_exc()}"
-                    )
-                    message.close()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(
+    emulator.setup()
+)
 
-except KeyboardInterrupt:
-    print("Caught keyboard interrupt, exiting")
-finally:
-    sel.close()
+
+# server stuff?
+# try: 
+#     while True:
+#         events = sel.select(timeout=None)
+#         for key, mask in events:
+#             if key.data is None:
+#                 accept_wrapper(key.fileobj)
+#             else:
+#                 message = key.data
+#                 try:
+#                     message.process_events(mask, emulator)
+#                 except Exception:
+#                     print(
+#                         f" Main: Error: Exception for {message.addr}:\n"
+#                         f"{traceback.format_exc()}"
+#                     )
+#                     message.close()
+
+# except KeyboardInterrupt:
+#     print("Caught keyboard interrupt, exiting")
+# finally:
+#     sel.close()
