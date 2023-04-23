@@ -45,14 +45,14 @@ reconnect_bt_addr = None
 device_id = 12345
 
 class Emulator:
-    def setup(self):
+    async def setup(self):
         spi_flash = FlashMemory()
         controller = Controller.from_arg('PRO_CONTROLLER')
         with utils.get_output(path='log.txt', default=None) as capture_file:
             # prepare the the emulated controller
             factory = controller_protocol_factory(controller, spi_flash=spi_flash)
             ctl_psm, itr_psm = 17, 19
-            transport, protocol = create_hid_server(factory, reconnect_bt_addr=reconnect_bt_addr,
+            transport, protocol = await create_hid_server(factory, reconnect_bt_addr=reconnect_bt_addr,
                                                         ctl_psm=ctl_psm,
                                                         itr_psm=itr_psm, capture_file=capture_file,
                                                         device_id=device_id)
