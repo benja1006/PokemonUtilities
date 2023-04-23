@@ -41,7 +41,7 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 spi_flash = FlashMemory()
 controller = Controller.from_arg('PRO_CONTROLLER')
 reconnect_bt_addr = None
-device_id = 12345
+device_id = "98:FE:94:4F:53:5B"
 
 class Emulator:
     async def setup(self):
