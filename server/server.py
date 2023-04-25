@@ -40,7 +40,7 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 # Controller specific things
 spi_flash = FlashMemory()
 controller = Controller.from_arg('PRO_CONTROLLER')
-reconnect_bt_addr = None
+reconnect_bt_addr = "98:FE:94:4F:53:5B"
 device_id = "98:FE:94:4F:53:5B"
 
 class Emulator:
@@ -58,13 +58,34 @@ class Emulator:
 
             self.controller_state = protocol.get_controller_state()
             self.controller_state.connect()
-            self.cli = ControllerCLI(self.controller_state)
-            # _register_commands_with_controller_state(controller_state, cli)
 
             try:
-                await self.cli.run()
+                await self.run()
             finally:
                 await transport.close()
+    
+    async def run(self):
+        try: 
+            while True:
+                events = sel.select(timeout=None)
+                for key, mask in events:
+                    if key.data is None:
+                        accept_wrapper(key.fileobj)
+                    else:
+                        message = key.data
+                        try:
+                            message.process_events(mask, emulator)
+                        except Exception:
+                            print(
+                                f" Main: Error: Exception for {message.addr}:\n"
+                                f"{traceback.format_exc()}"
+                            )
+                            message.close()
+
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt, exiting")
+        finally:
+            sel.close()
     
 
     
