@@ -40,8 +40,8 @@ sel.register(lsock, selectors.EVENT_READ, data=None)
 # Controller specific things
 spi_flash = FlashMemory()
 controller = Controller.from_arg('PRO_CONTROLLER')
-reconnect_bt_addr = "98:FE:94:4F:53:5B"
-device_id = "98:FE:94:4F:53:5B"
+#reconnect_bt_addr = "98:FE:94:4F:53:5B"
+#device_id = "98:FE:94:4F:53:5B"
 
 class Emulator:
     async def setup(self):
@@ -50,12 +50,12 @@ class Emulator:
         print("Got Controller")
         with utils.get_output(path='log.txt', default=None) as capture_file:
             # prepare the the emulated controller
-            factory = controller_protocol_factory(controller, spi_flash=spi_flash)
+            factory = controller_protocol_factory(controller, spi_flash=spi_flash, reconnect='')
             ctl_psm, itr_psm = 17, 19
-            transport, protocol = await create_hid_server(factory, reconnect_bt_addr=reconnect_bt_addr,
+            transport, protocol = await create_hid_server(factory, reconnect_bt_addr='',
                                                         ctl_psm=ctl_psm,
                                                         itr_psm=itr_psm, capture_file=capture_file,
-                                                        device_id=device_id)
+                                                        device_id='')
             print("Made hid server")
             self.controller_state = protocol.get_controller_state()
             # self.controller_state.connect()
