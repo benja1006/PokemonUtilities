@@ -58,7 +58,7 @@ class Emulator:
                                                         device_id=device_id)
             print("Made hid server")
             self.controller_state = protocol.get_controller_state()
-            self.controller_state.connect()
+            # self.controller_state.connect()
             print("connected to controller")
 
             try:
