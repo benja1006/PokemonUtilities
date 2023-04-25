@@ -47,6 +47,7 @@ class Emulator:
     async def setup(self):
         spi_flash = FlashMemory()
         controller = Controller.from_arg('PRO_CONTROLLER')
+        print("Got Controller")
         with utils.get_output(path='log.txt', default=None) as capture_file:
             # prepare the the emulated controller
             factory = controller_protocol_factory(controller, spi_flash=spi_flash)
@@ -55,9 +56,10 @@ class Emulator:
                                                         ctl_psm=ctl_psm,
                                                         itr_psm=itr_psm, capture_file=capture_file,
                                                         device_id=device_id)
-
+            print("Made hid server")
             self.controller_state = protocol.get_controller_state()
             self.controller_state.connect()
+            print("connected to controller")
 
             try:
                 await self.run()
