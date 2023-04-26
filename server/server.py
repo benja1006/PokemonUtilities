@@ -29,7 +29,7 @@ def accept_wrapper(sock):
 
 
 def setup_server(args):
-    host = 'localhost'
+    host = '192.168.1.22'
     port = args.port
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
