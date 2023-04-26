@@ -185,13 +185,16 @@ class Message:
             stick = self.request.get("value")
             position = self.request.get("position")
             self.emulator.stick_hold(stick, position)
+            content = {"success": True}
         elif action == "stick_flick":
             stick = self.request.get("value")
             position = self.request.get("position")
             self.emulator.stick_flick(stick, position)
+            content = {"success": True}
         elif action == "stick_reset":
             stick = self.request.get("value")
             self.emulator.stick_reset(stick)
+            content = {"success": True}
         else:
             content = {"result": f"Error: invalid action '{action}'."}
          

@@ -10,7 +10,7 @@ sel = selectors.DefaultSelector()
 
 import clientlib
 
-def create_request(action, value):
+def create_request(action, value, position):
     # if action == "press" or action=="release" or action=="tap":
     return dict(
         type="text/json",
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('action', help='press, release or tap')
     parser.add_argument('value', help="button to be pressed")
-    parser.add_argument('position', help="position for stick commands", default='(2048,2048)')
+    parser.add_argument('-p', '--position', help="position for stick commands", default='(2048,2048)')
     args = parser.parse_args()
 
     action = args.action.lower()
