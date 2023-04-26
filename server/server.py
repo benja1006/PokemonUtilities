@@ -106,7 +106,7 @@ class Emulator:
     def stick_flick(self, stick, position):
         print('Flicking', stick, 'stick to position:', position)
 
-    def reset_stick(self, stick):
+    def stick_reset(self, stick):
         print('Resetting', stick, 'stick.')
     
 if __name__ == "__main__":

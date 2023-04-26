@@ -181,6 +181,17 @@ class Message:
             btn = self.request.get("value")
             self.emulator.tap_button(btn)
             content = {"success": True}
+        elif action == "stick_hold":
+            stick = self.request.get("value")
+            position = self.request.get("position")
+            self.emulator.stick_hold(stick, position)
+        elif action == "stick_flick":
+            stick = self.request.get("value")
+            position = self.request.get("position")
+            self.emulator.stick_flick(stick, position)
+        elif action == "stick_reset":
+            stick = self.request.get("value")
+            self.emulator.stick_reset(stick)
         else:
             content = {"result": f"Error: invalid action '{action}'."}
          
