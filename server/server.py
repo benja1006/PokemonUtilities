@@ -12,6 +12,8 @@ from joycontrol import logging_default as log, utils
 from joycontrol.protocol import controller_protocol_factory
 from joycontrol.server import create_hid_server
 from joycontrol.command_line_interface import ControllerCLI
+from joycontrol.transport import NotConnectedError
+from joycontrol.controller_state import button_push, button_release, button_press
 
 
 
@@ -85,28 +87,53 @@ class Emulator:
                                 f"{traceback.format_exc()}"
                             )
                             message.close()
-
+                try:
+                    await self.controller_state.send()
+                except NotConnectedError:
+                    print('Connection was lost.')
+                    return
         except KeyboardInterrupt:
             print("Caught keyboard interrupt, exiting")
         finally:
             sel.close()
     
-    def press_button(self, button):
+    async def press_button(self, button):
+        await button_press(self.controller_state, button)
         print('pressing button', button)
 
-    def release_button(self, button):
+    async def release_button(self, button):
+        await button_release(self.controller_state, button)
         print('releasing button', button)
 
-    def tap_button(self, button):
+    async def tap_button(self, button):
+        await button_push(self.controller_state, button, sec=0.1)
         print('Tapping button', button)
 
     def stick_hold(self, stick, position):
+        if stick == 'left':
+            stick_state = self.controller_state.l_stick_state
+        if stick == 'right':
+            stick_state = self.controller_state.r_stick_state
+        stick_state.set_h(position[0])
+        stick_state.set_v(position[1])
         print('Holding', stick, 'stick at position:', position)
 
     def stick_flick(self, stick, position):
+        if stick == 'left':
+            stick_state = self.controller_state.l_stick_state
+        if stick == 'right':
+            stick_state = self.controller_state.r_stick_state
+        stick_state.set_h(position[0])
+        stick_state.set_v(position[1])
+        self.stick_reset(stick)
         print('Flicking', stick, 'stick to position:', position)
 
     def stick_reset(self, stick):
+        if stick == 'left':
+            stick_state = self.controller_state.l_stick_state
+        if stick == 'right':
+            stick_state = self.controller_state.r_stick_state
+        stick_state.set_center()
         print('Resetting', stick, 'stick.')
     
 if __name__ == "__main__":
