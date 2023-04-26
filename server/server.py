@@ -4,6 +4,7 @@ import selectors
 import traceback
 import asyncio
 import argparse
+import time
 
 # joycontrol imports
 from joycontrol.memory import FlashMemory
@@ -125,6 +126,7 @@ class Emulator:
             stick_state = self.controller_state.r_stick_state
         stick_state.set_h(position[0])
         stick_state.set_v(position[1])
+        time.sleep(0.2)
         self.stick_reset(stick)
         print('Flicking', stick, 'stick to position:', position)
 
