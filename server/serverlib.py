@@ -87,7 +87,7 @@ class Message:
 
     async def create_response(self):
         if self.jsonheader["content-type"] == "text/json":
-            await response = self._create_response_json_content()
+            response = await self._create_response_json_content()
         else:
             # Binary or unknown content type
             response = self._create_response_binary_content()
