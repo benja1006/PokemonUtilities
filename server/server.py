@@ -61,7 +61,7 @@ class Emulator:
             print("Made hid server")
             self.controller_state = protocol.get_controller_state()
             # self.controller_state.connect()
-            print("connected to controller")
+            print("connected to switch")
 
             try:
                 await self.run()

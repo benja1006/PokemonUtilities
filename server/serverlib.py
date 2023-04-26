@@ -170,16 +170,16 @@ class Message:
         action = self.request.get("action")
         if action == "press":
             btn = self.request.get("value")
-            self.emulator.press_btn(btn)
+            self.emulator.press_button(btn)
             content = {"success": True}
         if action == "release":
             btn = self.request.get("value")
-            self.emulator.release_btn(btn)
+            self.emulator.release_button(btn)
             content = {"success": True}
-        if action == "push":
+        if action == "tap":
             btn = self.request.get("value")
             delay = self.request.get("delay")
-            self.emulator.push_btn(btn, delay)
+            self.emulator.tap_button(btn, delay)
             content = {"success": True}
         else:
             content = {"result": f"Error: invalid action '{action}'."}
