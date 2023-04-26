@@ -19,11 +19,11 @@ sel = selectors.DefaultSelector()
 
 import serverlib
 
-def accept_wrapper(sock):
+def accept_wrapper(sock, emulator):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
     conn.setblocking(False)
-    message = serverlib.Message(sel, conn, addr)
+    message = serverlib.Message(sel, conn, addr, emulator)
     sel.register(conn, selectors.EVENT_READ, data=message)
 
 
@@ -74,7 +74,7 @@ class Emulator:
                 events = sel.select(timeout=None)
                 for key, mask in events:
                     if key.data is None:
-                        accept_wrapper(key.fileobj)
+                        accept_wrapper(key.fileobj, self)
                     else:
                         message = key.data
                         try:
@@ -91,7 +91,14 @@ class Emulator:
         finally:
             sel.close()
     
+    def press_button(self, button):
+        print('pressing button', button)
 
+    def release_buton(self, button):
+        print('releasing button', button)
+
+    def tap_button(self, button, delay):
+        print('Tapping button', button, 'for', delay, 'seconds')
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
