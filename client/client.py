@@ -5,7 +5,7 @@ import traceback
 import argparse
 
 
-sel = selectors.DefaultSelector()
+
 
 
 import clientlib
@@ -35,22 +35,10 @@ def start_connection(host, port, request):
     sel.register(sock, events, data=message)
 
 
-"""
-Read a file. For each line in file, action, value and delay will be separated by a space, then just perform each one sequentially.
-"""
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('action', help='press, release or tap')
-    parser.add_argument('value', help="button to be pressed")
-    parser.add_argument('-p', '--position', help="position for stick commands", default='(2048,2048)')
-    args = parser.parse_args()
-
-    action = args.action.lower()
-    value = args.value.lower()
-    position = eval(args.position)
+async def main(action, value, position):
     host = '192.168.1.22'
     port = 12345
+    sel = selectors.DefaultSelector()
     request = create_request(action, value, position)
     start_connection(host, port, request)
 
@@ -75,3 +63,16 @@ if __name__ == '__main__':
         print("Caught keyboard interrupt, exiting")
     finally:
         sel.close()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('action', help='press, release or tap')
+    parser.add_argument('value', help="button to be pressed")
+    parser.add_argument('-p', '--position', help="position for stick commands", default='(2048,2048)')
+    args = parser.parse_args()
+
+    action = args.action.lower()
+    value = args.value.lower()
+    position = eval(args.position)
+    
