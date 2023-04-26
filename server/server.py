@@ -97,8 +97,8 @@ class Emulator:
     def release_buton(self, button):
         print('releasing button', button)
 
-    def tap_button(self, button, delay):
-        print('Tapping button', button, 'for', delay, 'seconds')
+    def tap_button(self, button):
+        print('Tapping button', button)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

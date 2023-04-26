@@ -168,21 +168,22 @@ class Message:
 
     def _create_response_json_content(self):
         action = self.request.get("action")
-        if action == "press":
-            btn = self.request.get("value")
-            self.emulator.press_button(btn)
-            content = {"success": True}
-        if action == "release":
-            btn = self.request.get("value")
-            self.emulator.release_button(btn)
-            content = {"success": True}
-        if action == "tap":
-            btn = self.request.get("value")
-            delay = self.request.get("delay")
-            self.emulator.tap_button(btn, delay)
-            content = {"success": True}
-        else:
-            content = {"result": f"Error: invalid action '{action}'."}
+        match action:
+            case "press":
+                btn = self.request.get("value")
+                self.emulator.press_button(btn)
+                content = {"success": True}
+            case "release":
+                btn = self.request.get("value")
+                self.emulator.release_button(btn)
+                content = {"success": True}
+            case "tap":
+                btn = self.request.get("value")
+                self.emulator.tap_button(btn)
+                content = {"success": True}
+            case _:
+                content = {"result": f"Error: invalid action '{action}'."}
+         
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
