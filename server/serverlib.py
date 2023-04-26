@@ -4,6 +4,7 @@ import json
 import io
 import struct
 import asyncio
+import logging
 
 
 
@@ -34,10 +35,10 @@ class Message:
     
     def process_events(self, mask) -> None:
         if mask & selectors.EVENT_READ:
-            print("reading")
+            logging.debug("reading")
             self.read()
         if mask & selectors.EVENT_WRITE:
-            print("writing")
+            logging.debug("writing")
             self.write()
 
     def preprocess_protoheader(self) -> None:
@@ -49,9 +50,9 @@ class Message:
             self._recv_buffer = self._recv_buffer[hdrlen:]
     
     def process_jsonheader(self) -> None:
-        print("processing jsonheader")
+        logging.debug("processing jsonheader")
         hdrlen = self._jsonheader_len
-        print(len(self._recv_buffer))
+        logging.debug(len(self._recv_buffer))
         if len(self._recv_buffer) >= hdrlen:
             self.jsonheader = self._json_decode(
                 self._recv_buffer[:hdrlen], "utf-8"
@@ -75,10 +76,10 @@ class Message:
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.request = self._json_decode(data, encoding)
-            print(f"Received request {self.request!r} from {self.addr}")
+            logging.info(f"Received request {self.request!r} from {self.addr}")
         else:
             self.request = data
-            print(
+            logging.info(
                 f"Received {self.jsonheader['content-type']} "
                 f"request from {self.addr}"
             )
@@ -109,7 +110,7 @@ class Message:
     
     def _write(self):
         if self._send_buffer:
-            print(f"Sending {self._send_buffer}")
+            logging.debug(f"Sending {self._send_buffer}")
             try:
                 sent = self.sock.send(self._send_buffer)
             except BlockingIOError:
@@ -126,12 +127,12 @@ class Message:
 
         
         if self._jsonheader_len is not None:
-            print(f"The header is {self._jsonheader_len} bytes long")
+            logging.debug(f"The header is {self._jsonheader_len} bytes long")
             if self.jsonheader is None:
                 self.process_jsonheader()
         
         if self.jsonheader:
-            print(f"The json header is {self.jsonheader}")
+            logging.debug(f"The json header is {self.jsonheader}")
             if self.request is None:
                 self.process_request()
 
@@ -201,11 +202,11 @@ class Message:
         return response
 
     def close(self):
-        print(f"Closing connection to {self.addr}")
+        logging.info(f"Closing connection to {self.addr}")
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            print(
+            logging.error(
                 f"Error: selector.unregister() exception for "
                 f"{self.addr}: {e!r}"
             )
@@ -213,7 +214,7 @@ class Message:
         try:
             self.sock.close()
         except OSError as e:
-            print(f"Error: socket.close() exception for {self.addr}: {e!r}")
+            logging.error(f"Error: socket.close() exception for {self.addr}: {e!r}")
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None

@@ -94,11 +94,20 @@ class Emulator:
     def press_button(self, button):
         print('pressing button', button)
 
-    def release_buton(self, button):
+    def release_button(self, button):
         print('releasing button', button)
 
     def tap_button(self, button):
         print('Tapping button', button)
+
+    def stick_hold(self, stick, position):
+        print('Holding', stick, 'stick at position:', position)
+
+    def stick_flick(self, stick, position):
+        print('Flicking', stick, 'stick to position:', position)
+
+    def reset_stick(self, stick):
+        print('Resetting', stick, 'stick.')
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

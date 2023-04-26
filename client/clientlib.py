@@ -3,6 +3,7 @@ import selectors
 import json
 import io
 import struct
+import logging
 
 class Message:
     def __init__(self, selector, sock, addr, request) -> None:
@@ -82,12 +83,12 @@ class Message:
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.response = self._json_decode(data, encoding)
-            print(f"Received response {self.response!r} from {self.addr}")
+            logging.info(f"Received response {self.response!r} from {self.addr}")
             self._process_response_json_content()
         else:
             # Binary or unknown content-type
             self.response = data
-            print(
+            logging.info(
                 f"Received {self.jsonheader['content-type']} "
                 f"response from {self.addr}"
             )
@@ -139,7 +140,7 @@ class Message:
     
     def _write(self):
         if self._send_buffer:
-            print(f"Sending {self._send_buffer!r} to {self.addr}")
+            logging.info(f"Sending {self._send_buffer!r} to {self.addr}")
             try:
                 sent = self.sock.send(self._send_buffer)
             except BlockingIOError:
@@ -174,18 +175,18 @@ class Message:
     def _process_response_json_content(self):
         content = self.response
         result = content.get("result")
-        print(f"Got result: {result}")
+        logging.info(f"Got result: {result}")
 
     def _process_response_binary_content(self):
         content = self.response
-        print(f"Got response: {content!r}")
+        logging.info(f"Got response: {content!r}")
 
     def close(self):
-        print(f"Closing connection to {self.addr}")
+        logging.info(f"Closing connection to {self.addr}")
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            print(
+            logging.error(
                 f"Error: selector.unregister() exception for "
                 f"{self.addr}: {e!r}"
             )
@@ -193,7 +194,7 @@ class Message:
         try:
             self.sock.close()
         except OSError as e:
-            print(f"Error: socket.close() exception for {self.addr}: {e!r}")
+            logging.error(f"Error: socket.close() exception for {self.addr}: {e!r}")
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
