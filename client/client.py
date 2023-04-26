@@ -56,8 +56,8 @@ def start_connection(host, port, request):
 """
 Read a file. For each line in file, action, value and delay will be separated by a space, then just perform each one sequentially.
 """
-action = 'action'
-value = 'value'
+action = 'press'
+value = 'a'
 delay = 2
 host = '192.168.1.22'
 port = 12345
