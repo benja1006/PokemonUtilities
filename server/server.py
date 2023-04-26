@@ -80,7 +80,7 @@ class Emulator:
                     else:
                         message = key.data
                         try:
-                            message.process_events(mask)
+                            await message.process_events(mask)
                         except Exception:
                             print(
                                 f" Main: Error: Exception for {message.addr}:\n"

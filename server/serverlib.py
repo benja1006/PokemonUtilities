@@ -33,13 +33,13 @@ class Message:
             raise ValueError(f"Invalid events mask mode {mode!r}.")
         self.selector.modify(self.sock, events, data=self)
     
-    def process_events(self, mask) -> None:
+    async def process_events(self, mask) -> None:
         if mask & selectors.EVENT_READ:
             logging.debug("reading")
             self.read()
         if mask & selectors.EVENT_WRITE:
             logging.debug("writing")
-            self.write()
+            await self.write()
 
     def preprocess_protoheader(self) -> None:
         hdrlen = 2
@@ -85,9 +85,9 @@ class Message:
             )
         self._set_selector_events_mask("w")
 
-    def create_response(self):
+    async def create_response(self):
         if self.jsonheader["content-type"] == "text/json":
-            response = self._create_response_json_content()
+            await response = self._create_response_json_content()
         else:
             # Binary or unknown content type
             response = self._create_response_binary_content()
@@ -136,10 +136,10 @@ class Message:
             if self.request is None:
                 self.process_request()
 
-    def write(self) -> None:
+    async def write(self) -> None:
         if self.request:
             if not self.response_created:
-                self.create_response()
+                await self.create_response()
         self._write()
     
     def _json_encode(self, obj, encoding):
@@ -167,19 +167,19 @@ class Message:
         message = message_hdr + jsonheader_bytes + content_bytes
         return message
 
-    def _create_response_json_content(self):
+    async def _create_response_json_content(self):
         action = self.request.get("action")
         if action == "press":
             btn = self.request.get("value")
-            self.emulator.press_button(btn)
+            await self.emulator.press_button(btn)
             content = {"success": True}
         elif action == "release":
             btn = self.request.get("value")
-            self.emulator.release_button(btn)
+            await self.emulator.release_button(btn)
             content = {"success": True}
         elif action == "tap":
             btn = self.request.get("value")
-            self.emulator.tap_button(btn)
+            await self.emulator.tap_button(btn)
             content = {"success": True}
         elif action == "stick_hold":
             stick = self.request.get("value")
