@@ -31,7 +31,9 @@ async def open_inventory():
     """Open the inventory from the main walking around screen
     """
     await press('x')
+    await asyncio.sleep(1)
     await l_stick_flick(DOWN)
+    await asyncio.sleep(1)
     await press('a')
 
 if __name__ == "__main__":
