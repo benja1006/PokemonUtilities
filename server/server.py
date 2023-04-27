@@ -72,6 +72,7 @@ class Emulator:
                 await transport.close()
     
     async def run(self):
+        print('Running run()')
         try: 
             while True:
                 events = sel.select(timeout=None)
