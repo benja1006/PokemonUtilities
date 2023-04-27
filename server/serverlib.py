@@ -169,6 +169,7 @@ class Message:
 
     async def _create_response_json_content(self):
         action = self.request.get("action")
+        print(action, "-ing")
         if action == "press":
             btn = self.request.get("value")
             await self.emulator.press_button(btn)

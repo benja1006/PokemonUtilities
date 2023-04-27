@@ -90,7 +90,6 @@ class Emulator:
                             message.close()
                 try:
                     await self.controller_state.send()
-                    print('Still Connected')
                 except NotConnectedError:
                     print('Connection was lost.')
                     return
