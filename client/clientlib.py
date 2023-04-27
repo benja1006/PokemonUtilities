@@ -5,6 +5,7 @@ import io
 import struct
 import logging
 
+
 class Message:
     def __init__(self, selector, sock, addr, request) -> None:
         self.selector = selector

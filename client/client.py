@@ -3,12 +3,11 @@ import socket
 import selectors
 import traceback
 import argparse
-
-
-
-
+import asyncio
 
 import clientlib
+
+
 
 def create_request(action, value, position):
     # if action == "press" or action=="release" or action=="tap":
@@ -24,7 +23,7 @@ def create_request(action, value, position):
     #         content=bytes(action + value, encoding="utf-8")
     #     )
 
-def start_connection(host, port, request):
+def start_connection(host, port, request, sel):
     addr = (host, port)
     print(f"Starting connection to {addr}")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,12 +34,12 @@ def start_connection(host, port, request):
     sel.register(sock, events, data=message)
 
 
-async def main(action, value, position):
+async def main(action, value, position=(2048, 2048)):
     host = '192.168.1.22'
     port = 12345
     sel = selectors.DefaultSelector()
     request = create_request(action, value, position)
-    start_connection(host, port, request)
+    start_connection(host, port, request, sel)
 
 
     try: 
@@ -75,4 +74,7 @@ if __name__ == '__main__':
     action = args.action.lower()
     value = args.value.lower()
     position = eval(args.position)
-    
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(
+        main(action, value, position)
+    )

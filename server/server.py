@@ -90,6 +90,7 @@ class Emulator:
                             message.close()
                 try:
                     await self.controller_state.send()
+                    print('Updating state')
                 except NotConnectedError:
                     print('Connection was lost.')
                     return
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--log', help="BT-communication logfile output")
     parser.add_argument('-d', '--device_id', help='not fully working yet, the BT-adapter to use')
     parser.add_argument('--spi_flash', help="controller SPI-memory dump to use")
-    parser.add_argument('-r', '--reconnect_bt_addr', type=str, default=None,
+    parser.add_argument('-r', '--reconnect_bt_addr', type=str, default='78:20:A5:74:65:73',
                         help='The Switch console Bluetooth address (or "auto" for automatic detection), for reconnecting as an already paired controller.')
     parser.add_argument('--nfc', type=str, default=None, help="amiibo dump placed on the controller. Äquivalent to the nfc command.")
     parser.add_argument('-p', '--port', type=int, default=12345, help="The port to run the server on.")
