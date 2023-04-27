@@ -89,8 +89,9 @@ class Emulator:
                             )
                             message.close()
                 try:
-                    await self.controller_state.send()
                     print('Updating state')
+                    await self.controller_state.send()
+                    print('State updated')
                 except NotConnectedError:
                     print('Connection was lost.')
                     return
