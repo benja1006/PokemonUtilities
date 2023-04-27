@@ -75,7 +75,7 @@ class Emulator:
         print('Running run()')
         try: 
             while True:
-                events = sel.select(timeout=None)
+                events = sel.select(timeout=0)
                 for key, mask in events:
                     if key.data is None:
                         accept_wrapper(key.fileobj, self)
