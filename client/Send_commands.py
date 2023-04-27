@@ -2,8 +2,8 @@ from client import main
 import asyncio
 
 #Stick consts
-DOWN=(2048,4095)
-UP=(2048,0)
+UP=(2048,4095)
+DOWN=(2048,0)
 LEFT=(0, 2048)
 RIGHT=(4095,2048)
 
@@ -32,10 +32,11 @@ async def open_inventory():
     """Open the inventory from the main walking around screen
     """
     await tap('x')
-    await asyncio.sleep(5)
+    await asyncio.sleep(1)
     await l_stick_flick(DOWN)
-    await asyncio.sleep(5)
+    await asyncio.sleep(1)
     await tap('a')
+    await asyncio.sleep(2)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
