@@ -61,10 +61,10 @@ class Emulator:
                                                         ctl_psm=ctl_psm,
                                                         itr_psm=itr_psm, capture_file=capture_file,
                                                         device_id=args.device_id)
-            print("Made hid server")
+            print("Made HID server")
             self.controller_state = protocol.get_controller_state()
             # self.controller_state.connect()
-            print("connected to switch")
+            print("Connected to switch")
 
             try:
                 await self.run()
@@ -72,7 +72,6 @@ class Emulator:
                 await transport.close()
     
     async def run(self):
-        print('Running run()')
         try: 
             while True:
                 events = sel.select(timeout=0)
@@ -90,9 +89,7 @@ class Emulator:
                             )
                             message.close()
                 try:
-                    print('Updating state')
                     await self.controller_state.send()
-                    print('State updated')
                 except NotConnectedError:
                     print('Connection was lost.')
                     return
