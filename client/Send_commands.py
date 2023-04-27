@@ -32,10 +32,10 @@ async def open_inventory():
     """Open the inventory from the main walking around screen
     """
     await press('x')
-    # await asyncio.sleep(1)
-    # await l_stick_flick(DOWN)
-    # await asyncio.sleep(1)
-    # await press('a')
+    await asyncio.sleep(5)
+    await l_stick_flick(DOWN)
+    await asyncio.sleep(5)
+    await press('a')
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
