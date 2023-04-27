@@ -119,7 +119,7 @@ class Emulator:
         stick_state.set_v(position[1])
         print('Holding', stick, 'stick at position:', position)
 
-    def stick_flick(self, stick, position):
+    async def stick_flick(self, stick, position):
         if stick == 'left':
             stick_state = self.controller_state.l_stick_state
         if stick == 'right':
@@ -127,6 +127,7 @@ class Emulator:
         stick_state.set_h(position[0])
         stick_state.set_v(position[1])
         print('Flicking', stick, 'stick to position:', position)
+        await asyncio.sleep(0.1)
         self.stick_reset(stick)
 
     def stick_reset(self, stick):
