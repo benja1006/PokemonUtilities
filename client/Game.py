@@ -2,15 +2,17 @@ import cv2 as cv
 import numpy as np
 import asyncio
 from client import main
+import pytesseract
 
 class Game:
-    async def __init__(self):
-        self.cap = cv.VideoCapture(0)
+    def __init__(self):
+        self.cap = cv.VideoCapture(1)
         if not self.cap.isOpened():
             print('Cannot open elgato')
             exit()
         self.game_state = ''
         self.frame = None
+        self.trade_state = 'Looking for trade'
         
 
     def update_game_state(self):
@@ -34,7 +36,7 @@ class Game:
         await l_stick_hold(UPLEFT)
         await press('b')
 
-    def loop(self):
+    def hatch_loop(self):
         while True:
             ret, self.frame = self.cap.read()
 
@@ -45,9 +47,54 @@ class Game:
                 return 
             if cv.waitKey() == ord('q'):
                 exit()
+        
+    def trade_loop(self):
+        while True:
+            ret, self.frame = self.cap.read()
+            self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
+            if not ret:
+                print("Can't receive frame")
+                exit()
+            
+            # cv.imshow('Frame', self.frame)
+            if self.trade_state == 'Look for trade':
+                self.start_trade()
+            if self.trade_state == 'Looking for trade':
+                self.check_trade_found()
+            if self.trade_state == 'Trade found':
+                self.check_name()
+            if self.trade_state == 'Waiting for accept':
+                pass
+            if cv.waitKey() == ord('q'):
+                exit()
+    
+    def check_name(self):
+        name_frame = self.frame[10:70, 400:750]
+        name = pytesseract.image_to_string(name_frame).replace('\n', '')
+        if name in self.names:
+            self.complete_trade()
+        else:
+            self.exit_trade()
+    
+    def check_trade_found(self):
+        text_frame = self.frame[820:940, 530:1300]
+        
+        text = pytesseract.image_to_string(text_frame).replace('\n', '')
+        if text == 'A trade partner has been found!':
+            self.trade_state = 'Trade found'
 
+    def complete_trade(self):
+        # inputs to complete trade, need to wait for them to accept
+        # update an internal counter of how many trades have been completed
+        pass
+    
+    def exit_trade(self):
+        # quit trade inputs
+        self.trade_state = 'Look for trade'
 
-
+# self.frame = cv.rectangle(self.frame, (400,10), (750,70), (255, 0, 0), 2) # name bounding box
+# self.frame = cv.rectangle(self.frame, (478,780), (1440,980), (255, 0, 0), 2) # bottom bounding box
+# self.frame = cv.rectangle(self.frame, (530,820), (1300,940), (255, 0, 0), 2) # Text bounding box
 async def press(button):
     await main('press', button)
     print('Pressed', button)
@@ -87,3 +134,6 @@ DOWNRIGHT=(4095, 0)
 # if counter = 6, get next egg group from inv
 # reset counter
 
+if __name__ == "__main__":
+    game = Game()
+    game.trade_loop()
