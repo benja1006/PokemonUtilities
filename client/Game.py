@@ -14,7 +14,7 @@ class Game:
         self.game_state = ''
         self.frame = None
         self.trade_state = 'Looking for trade'
-        self.names = None
+        self.names = []
         self.trades_done = 0
         
 
@@ -52,31 +52,35 @@ class Game:
                 exit()
         
     async def trade_loop(self):
-        while True:
-            ret, self.frame = self.cap.read()
-            self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
-            if not ret:
-                print("Can't receive frame")
-                exit()
-            text_frame = self.frame[820:940, 530:1300]
-        
-            text = [*pytesseract.image_to_string(text_frame).replace('\n', '')]
-            print('Text frame:', text)
-            # cv.imshow('Frame', self.frame)
-            await self.check_disconnect()
+        try:
+            while True:
+                ret, self.frame = self.cap.read()
+                self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
+                if not ret:
+                    print("Can't receive frame")
+                    exit()
+                text_frame = self.frame[820:940, 530:1300]
+            
+                text = [*pytesseract.image_to_string(text_frame).replace('\n', '')]
+                print('Text frame:', text)
+                # cv.imshow('Frame', self.frame)
+                await self.check_disconnect()
 
-            if self.trade_state == 'Look for trade':
-                self.start_trade()
-            if self.trade_state == 'Looking for trade':
-                self.check_trade_found()
-            if self.trade_state == 'Trade found':
-                await self.check_name()
-            if self.trade_state == 'Waiting for other':
-                await self.finish_trade()
-            if self.trade_state == 'Waiting for trade to finish':
-                await self.check_trade_done()
-            if cv.waitKey() == ord('q'):
-                exit()
+                if self.trade_state == 'Look for trade':
+                    self.start_trade()
+                if self.trade_state == 'Looking for trade':
+                    self.check_trade_found()
+                if self.trade_state == 'Trade found':
+                    await self.check_name()
+                if self.trade_state == 'Waiting for other':
+                    await self.finish_trade()
+                if self.trade_state == 'Waiting for trade to finish':
+                    await self.check_trade_done()
+                if cv.waitKey() == ord('q'):
+                    exit()
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt, exiting")
+            exit()
     
     async def check_name(self):
         name_frame = self.frame[10:70, 400:750]
@@ -202,13 +206,13 @@ DOWNRIGHT=(4095, 0)
 # reset counter
 
 if __name__ == "__main__":
-    game = Game()
+    
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--mode', help='The mode to run in', choices=['trade',  'hatch'])
+    parser.add_argument('-m', '--mode', help='The mode to run in', choices=['trade',  'hatch'], required=True)
     parser.add_argument('-n', '--names', help='Names of users', nargs='+', required=False)
-
     args = parser.parse_args()
+    game = Game()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         game.start_trade(args.names)

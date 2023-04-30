@@ -152,7 +152,8 @@ if __name__ == "__main__":
     
     setup_server(args)
     emulator = Emulator()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     loop.run_until_complete(
         emulator.setup()
     )
