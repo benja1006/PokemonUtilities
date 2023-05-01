@@ -31,13 +31,8 @@ async def r_stick_reset():
 async def open_inventory():
     """Open the inventory from the main walking around screen
     """
-    await tap('x')
-    await asyncio.sleep(1)
-    await l_stick_flick(DOWN)
-    await asyncio.sleep(1)
-    await tap('a')
-    await asyncio.sleep(2)
-
+    await tap('b')
+    
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
