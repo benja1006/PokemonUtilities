@@ -5,6 +5,7 @@ from client import main
 import pytesseract
 import argparse
 import logging
+import math 
 
 class Game:
     def __init__(self):
@@ -90,8 +91,9 @@ class Game:
         if not trade_partner_text == 'Trade Partner':
             return
         await asyncio.sleep(1.5)
-        if name in self.names:
-            self.trade_partner = name
+        list_names = [val for val in self.names if name in val or val in name]
+        if list_names:
+            self.trade_partner = list_names[0]
             await self.innitiate_trade()
         else:
             print([*name])
@@ -132,8 +134,8 @@ class Game:
             self.trade_state = 'Waiting for other'
         if "Take good care of" in text:
             print("Saw take care of")
-            self.trades_done  += 1
-            self.names.remove(self.trade_partner)
+            self.names.remove(self.trade_partner) ################################
+            self.move_inv = True
             print(self.names)
             await asyncio.sleep(3)
             await self.exit_trade()
@@ -163,7 +165,7 @@ class Game:
         text = pytesseract.image_to_string(text_frame).replace('\n', '')
         if not text == 'POKE PORT':
             return
-        await asyncio.sleep(3)
+        await asyncio.sleep(3.5)
         await tap('a')
         await asyncio.sleep(1.5)
         await tap('a')
@@ -193,6 +195,40 @@ class Game:
             await asyncio.sleep(0.5)
             await self.exit_trade()
     
+    async def set_trade_code(self, code):
+        await tap('a')
+        await asyncio.sleep(1)
+        # now screen grab the number of characters input
+        ret, frame = self.cap.read()
+        if not ret:
+            print("Can't receive frame")
+            exit()
+        num_digits_frame = frame[375:425, 1375:1395]
+        num_digits = int(pytesseract.image_to_string(num_digits_frame, config='--psm 6').replace('\n', ''))
+        for _ in range(num_digits):
+            await tap('b')
+            await asyncio.sleep(0.5)
+        # now we must input code, we start at 1 
+        curr_num = 1
+        for next_num in code:
+            # first move vertically
+            if (curr_num - next_num) < 0:
+                # we need to move down
+                for _ in range(math.floor((next_num - curr_num) % 3)):
+                    await l_stick_flick(DOWN)
+                    await asyncio.sleep(0.5)
+            else:
+                for _ in range(math.floor((curr_num - next_num) % 3)):
+                    await l_stick_flick(UP)
+                    await asyncio.sleep(0.5)
+            # vert move should be done
+            # just mod 3 both numbers, then move left right or stay
+            if (curr_num % 3 > next_num % 3):
+                pass
+
+        # and submit!
+        await tap('plus')
+
     def pixel_count(self):
         while True:
             # Capture frame-by-frame
@@ -204,10 +240,10 @@ class Game:
             # Our operations on the frame come here
             gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             # Display the resulting frame
-            gray = cv.rectangle(gray, (100,10), (300,70), (255, 0, 0), 2) # name bounding box
-            trade_partner_text = gray[10:70, 100:300]
-            print([*pytesseract.image_to_string(trade_partner_text).replace('\n', '')])
-            cv.imshow('frame', gray)
+            gray = cv.rectangle(gray, (1375,375), (1395,425), (255, 0, 0), 2) # name bounding box
+            trade_partner_text = frame[375:425, 1375:1395]
+            print([*pytesseract.image_to_string(trade_partner_text, config='--psm 6').replace('\n', '')])
+            cv.imshow('frame', trade_partner_text)
             if cv.waitKey(1) == ord('q'):
                 break
     
