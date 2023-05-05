@@ -25,7 +25,7 @@ def create_request(action, value, position):
 
 def start_connection(host, port, request, sel):
     addr = (host, port)
-    print(f"Starting connection to {addr}")
+    # print(f"Starting connection to {addr}")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setblocking(False)
     sock.connect_ex(addr)

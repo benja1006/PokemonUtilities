@@ -1,0 +1,7 @@
+Issues:
+Bot sometimes gets stuck when requeuing, should be checking if the yes prompt is up
+Any more than two (maybe) trades won't work, need to keep track of how many trades have been done then move accordingly
+
+Features:
+Add automatic code insertion
+Infinate/num trades per person mode

@@ -18,6 +18,7 @@ class Game:
         self.trade_state = 'Looking for trade'
         self.names = []
         self.move_inv = False
+        self.code = None
         
 
     def update_game_state(self):
@@ -149,10 +150,13 @@ class Game:
         await tap('a')
         self.trade_state = 'Look for trade'
 
-    async def start_trade(self, names = []):
+    async def start_trade(self, names = [], code = ""):
         if not names and not self.names:
             print('Please enter at least one name')
             exit()
+        # if not self.code:
+        #     self.code = code
+        #     await self.set_trade_code(self.code)
         if self.frame is None:
             ret, self.frame = self.cap.read()
             self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
@@ -198,6 +202,10 @@ class Game:
     async def set_trade_code(self, code):
         await tap('a')
         await asyncio.sleep(1)
+        await l_stick_flick(DOWN)
+        await tap('a')
+        await asyncio.sleep(1)
+        # code screen should be open
         # now screen grab the number of characters input
         ret, frame = self.cap.read()
         if not ret:
@@ -211,23 +219,43 @@ class Game:
         # now we must input code, we start at 1 
         curr_num = 1
         for next_num in code:
+            print('Moving from', curr_num, 'to', next_num)
+            next_num = int(next_num)
             # first move vertically
             if (curr_num - next_num) < 0:
                 # we need to move down
+                print('Down', math.floor((next_num - curr_num) / 3))
                 for _ in range(math.floor((next_num - curr_num) % 3)):
                     await l_stick_flick(DOWN)
                     await asyncio.sleep(0.5)
             else:
+                print('Up', math.floor((curr_num - next_num) % 3))
                 for _ in range(math.floor((curr_num - next_num) % 3)):
                     await l_stick_flick(UP)
                     await asyncio.sleep(0.5)
             # vert move should be done
             # just mod 3 both numbers, then move left right or stay
             if (curr_num % 3 > next_num % 3):
-                pass
-
-        # and submit!
+                print('Left', curr_num % 3 - next_num % 3)
+                for _ in range((curr_num % 3) - (next_num % 3)):
+                    await l_stick_flick(LEFT)
+                    await asyncio.sleep(0.5)
+            else:
+                print('Right', (next_num % 3) - (curr_num % 3))
+                for _ in range(next_num % 3 - curr_num % 3):
+                    await l_stick_flick(RIGHT)
+                    await asyncio.sleep(0.5)
+            # movement is done
+            await tap('a')
+            curr_num = next_num
+        # now code should be entered correctly
         await tap('plus')
+        await asyncio.sleep(0.5)
+        await l_stick_flick(UP)
+        await asyncio.sleep(0.5)
+        await tap('b')
+        # now move on to main script
+
 
     def pixel_count(self):
         while True:
@@ -297,13 +325,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mode', help='The mode to run in', choices=['trade',  'hatch', 'pixels'], required=True)
     parser.add_argument('-n', '--names', help='Names of users', nargs='+', required=False)
+    parser.add_argument('-c', '--code', help='Trading code', required=False)
     args = parser.parse_args()
     game = Game()
     loop = asyncio.get_event_loop()
     print(args.names)
     if args.mode == 'trade':
         loop.run_until_complete(
-            game.start_trade(args.names)
+            game.start_trade(args.names, args.code)
         )
     if args.mode == 'pixels':
         game.pixel_count()
