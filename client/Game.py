@@ -219,44 +219,50 @@ class Game:
         # now we must input code, we start at 1 
         curr_num = 1
         for next_num in code:
-            print('Moving from', curr_num, 'to', next_num)
             next_num = int(next_num)
-            # first move vertically
-            if (curr_num - next_num) < 0:
-                # we need to move down
-                print('Down', math.floor((next_num - curr_num) / 3))
-                for _ in range(math.floor((next_num - curr_num) % 3)):
-                    await l_stick_flick(DOWN)
-                    await asyncio.sleep(0.5)
-            else:
-                print('Up', math.floor((curr_num - next_num) % 3))
-                for _ in range(math.floor((curr_num - next_num) % 3)):
-                    await l_stick_flick(UP)
-                    await asyncio.sleep(0.5)
-            # vert move should be done
+            if next_num == 0:
+                next_num == 11
+            if curr_num == 11 and next_num != 11:
+                # we must move upward once before moving horizontally
+                await l_stick_flick(UP)
+                curr_num == 8
+            # first move horizontally
             # just mod 3 both numbers, then move left right or stay
-            if (curr_num % 3 > next_num % 3):
-                print('Left', curr_num % 3 - next_num % 3)
-                for _ in range((curr_num % 3) - (next_num % 3)):
+            curr_col = curr_col % 3 if not curr_col % 3 == 0 else 3
+            next_col = next_col % 3 if not next_col % 3 == 0 else 3
+            if curr_col > next_col:
+                # move left
+                for _ in curr_col - next_col:
                     await l_stick_flick(LEFT)
                     await asyncio.sleep(0.5)
             else:
-                print('Right', (next_num % 3) - (curr_num % 3))
-                for _ in range(next_num % 3 - curr_num % 3):
+                for _ in next_col - curr_col: # This could be 0 times
                     await l_stick_flick(RIGHT)
                     await asyncio.sleep(0.5)
-            # movement is done
+            # in the correct column now
+            curr_row = math.floor(curr_num / 3)
+            next_row = math.floor(next_num / 3)
+            if next_row > curr_row:
+                # we need to move down
+                for _ in range(next_row - curr_row):
+                    await l_stick_flick(DOWN)
+                    await asyncio.sleep(0.5)
+            else:
+                for _ in range(curr_row - next_row):
+                    await l_stick_flick(UP)
+                    await asyncio.sleep(0.5)
+            # vert move should be done
             await tap('a')
-            curr_num = next_num
-        # now code should be entered correctly
+            await asyncio.sleep(0.2)
+            
+        # and submit!
         await tap('plus')
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         await l_stick_flick(UP)
         await asyncio.sleep(0.5)
         await tap('b')
-        # now move on to main script
-
-
+        
+    
     def pixel_count(self):
         while True:
             # Capture frame-by-frame
